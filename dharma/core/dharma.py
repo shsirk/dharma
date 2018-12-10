@@ -397,8 +397,10 @@ class DharmaMachine(object):
             sys.exit(-1)
         if self.current_obj.ident in section_dict:
             logging.error("%s(%s): '%s' gets redefined", self.id(), self.section, self.current_obj.ident)
-            sys.exit(-1)
-        section_dict[self.current_obj.ident] = self.current_obj
+            for value in self.current_obj:
+                section_dict[self.current_obj.ident].append(value)
+        else:
+            section_dict[self.current_obj.ident] = self.current_obj
 
     def resolve_xref(self):
         for obj in chain(self.value.values(),
