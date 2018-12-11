@@ -1,0 +1,11 @@
+CHANGES:
+
+  1. add_section_object: multiple section objects of same name within same file supported
+  2. %repeat% macro change:
+     a. to support repeat power (if not provided, repeat power from settings will be used)
+     b. to support external duplication removal function
+        module!function - external call support for nodups (define external function in python module) 
+        TODO: module should be in root folder as of now
+              suport for package.module to be provided
+
+  

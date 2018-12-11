@@ -7,7 +7,6 @@ import math
 import random
 import logging
 
-
 class DharmaConst(object):
     """Configuration settings for the Dharma generator."""
     pass
@@ -53,15 +52,21 @@ class MetaURI(object):
 class MetaRepeat(object):
     """Grammar extension method which repeats an arbitrary expression."""
 
-    def __init__(self, repeat, separator, nodups, parent):
+    def __init__(self, repeat, separator, nodups, power, parent):
         self.parent = parent
-        self.repeat, self.separator, self.nodups = repeat, separator, nodups
+        self.repeat, self.separator, self.nodups, self.power = repeat, separator, nodups, power
+        if self.nodups:
+            try:
+                module, function = self.nodups.split("!")
+                self.nodups = getattr(__import__(module), function)
+            except ImportError:
+                logging.error("external import error: %s" % nodups)
 
     def generate(self, state):
-        count = random.randint(1, math.pow(2, random.randint(1, DharmaConst.MAX_REPEAT_POWER)))
+        count = random.randint(1, math.pow(2, random.randint(1, self.power)))
         strings = [self.parent.eval(self.repeat, state) for _ in range(count)]
         if self.nodups:
-            strings = list(set(strings))
+            strings = self.nodups(strings)
         return self.separator.join(strings)
 
 

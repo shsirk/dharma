@@ -223,7 +223,7 @@ class DharmaMachine(object):
         self.xref_registry = r"""(
             (?P<type>\+|!|@)(?P<xref>[a-zA-Z0-9:_]+)(?P=type)|
             %uri%\(\s*(?P<uri>.*?)\s*\)|
-            %repeat%\(\s*(?P<repeat>.+?)\s*(,\s*"(?P<separator>.*?)")?\s*(,\s*(?P<nodups>nodups))?\s*\)|
+            %repeat%\(\s*(?P<repeat>.+?)\s*(,\s*"(?P<separator>.*?)")?\s*(,\s*(?P<nodups>\w+(.\w+)?!\w*))?\s*(,\s*(?P<power>\d+))?\s*\)|
             %block%\(\s*(?P<block>.*?)\s*\)|
             %range%\((?P<start>.+?)-(?P<end>.+?)\)|
             %choice%\(\s*(?P<choices>.+?)\s*\)
@@ -341,12 +341,13 @@ class DharmaMachine(object):
                 path = m.group("uri")
                 out.append(MetaURI(path, self.current_obj))
             elif m.group("repeat") is not None:
-                repeat, separator, nodups = m.group("repeat", "separator", "nodups")
+                repeat, separator, nodups, power = m.group("repeat", "separator", "nodups", "power")
                 if separator is None:
                     separator = ""
                 if nodups is None:
                     nodups = ""
-                out.append(MetaRepeat(self.parse_xrefs(repeat), separator, nodups, self.current_obj))
+                power = power and int(power) or DharmaConst.MAX_REPEAT_POWER
+                out.append(MetaRepeat(self.parse_xrefs(repeat), separator, nodups, power, self.current_obj))
             elif m.group("block") is not None:
                 path = m.group("block")
                 out.append(MetaBlock(path, self.current_obj))
