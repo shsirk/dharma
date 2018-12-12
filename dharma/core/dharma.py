@@ -181,12 +181,12 @@ class DharmaVariable(DharmaObject):
 
     def generate(self, state):
         """Return a random variable if any otherwise create a new default variable."""
-        if self.count:
+        if self.count >= DharmaConst.VARIABLE_MAX:
             return "%s%d" % (self.var, random.randint(1, self.count))
         self.count += 1
         var = random.choice(self)
         element_name = "%s%d" % (self.var, self.count)
-        self.default = "%s%s%s" % (self.eval(var[0], state), element_name, self.eval(var[1], state))
+        self.default += "%s%s%s\n" % (self.eval(var[0], state), element_name, self.eval(var[1], state))
         return element_name
 
 
@@ -224,6 +224,7 @@ class DharmaMachine(object):
             (?P<type>\+|!|@)(?P<xref>[a-zA-Z0-9:_]+)(?P=type)|
             %uri%\(\s*(?P<uri>.*?)\s*\)|
             %repeat%\(\s*(?P<repeat>.+?)\s*(,\s*"(?P<separator>.*?)")?\s*(,\s*(?P<nodups>\w+(.\w+)?!\w*))?\s*(,\s*(?P<power>\d+))?\s*\)|
+            %optional%\(\s*(?P<optional>.+?)\s*(,\s*"(?P<opt_sep>.*?)")?\s*(,\s*(?P<min>\d+))?\s*(,\s*(?P<max>\d+))?\s*\)|
             %block%\(\s*(?P<block>.*?)\s*\)|
             %range%\((?P<start>.+?)-(?P<end>.+?)\)|
             %choice%\(\s*(?P<choices>.+?)\s*\)
@@ -348,6 +349,13 @@ class DharmaMachine(object):
                     nodups = ""
                 power = power and int(power) or DharmaConst.MAX_REPEAT_POWER
                 out.append(MetaRepeat(self.parse_xrefs(repeat), separator, nodups, power, self.current_obj))
+            elif m.group("optional") is not None:
+                optional, separator, min_range, max_range = m.group("optional", "opt_sep", "min", "max")
+                if separator is None:
+                    separator = ""
+                min_value = min_range and int(min_range) or 0
+                max_value = max_range and int(max_range) or 0
+                out.append(MetaZeroOrMore(self.parse_xrefs(optional), separator, min_value, max_value, self.current_obj))
             elif m.group("block") is not None:
                 path = m.group("block")
                 out.append(MetaBlock(path, self.current_obj))

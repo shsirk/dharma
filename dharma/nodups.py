@@ -1,5 +1,7 @@
 import logging
 
+logging.getLogger("nodups").setLevel(logging.ERROR)
+
 def by_keys(ll_strings):
   logging.debug("nodups!bykeys: received %d strings" % len(ll_strings))
   if ll_strings:
@@ -9,7 +11,7 @@ def by_keys(ll_strings):
         key, val = s.split(":")
         m[key] = val
       except:
-        logging.error("nodups!bykeys: unexpected error encountered, skipping line: %s" % s)
+        pass
     if m:
       nodups = ["%s: %s" % (k, v) for k, v in m.items()]
       logging.debug("nodups!bykeys: duplicated keys removed to %d strings" % len(nodups))

@@ -70,6 +70,30 @@ class MetaRepeat(object):
         return self.separator.join(strings)
 
 
+class MetaZeroOrMore(object):
+    """Grammar extension method which repeats an arbitrary expression."""
+
+    def __init__(self, repeat, separator, min_range, max_range, parent):
+        self.parent = parent
+        self.repeat, self.separator, self.min, self.max = repeat, separator, min_range, max_range
+        
+    def generate(self, state):
+        strings = []
+        if self.min == 0 and self.max == 0:
+            if bool(random.getrandbits(1)):
+                strings.extend([self.parent.eval(self.repeat, state)])    
+        else:
+            if self.max == 0:
+                self.max = pow(2, self.min)
+            count = random.randint(self.min, self.max)
+            if count != 0:
+                strings.extend([self.parent.eval(self.repeat, state) for _ in range(count)])
+
+        if strings:
+            return "%s%s" % (self.separator, self.separator.join(strings))
+        else:
+            return ""
+
 class MetaChoice(object):
     """Grammar extension method which chooses an item out of a list randomly."""
 

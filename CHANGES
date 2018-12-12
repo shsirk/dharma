@@ -9,3 +9,9 @@ CHANGES:
               suport for package.module to be provided
 
   
+  3. @variable@ bug fixed, now create upto DharmaConst.VARIABLE_MAX variables, when DharmaConst.VARIABLE_MAX reached, random
+     variable from existing created variables will be returned
+
+  4. new extension %optional% added, support similar functionality of kleen start (?, *, +) (or enhanced %repeat% extension)
+     %optional%(+symbol+, "seperator", min, max)
+     
